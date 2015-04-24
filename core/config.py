@@ -19,6 +19,7 @@ if not os.path.exists('config'):
               "channels": ["#test"]
             }
           },
+          "prefix": ".",
           "disabled_plugins": [],
           "disabled_commands": [],
           "acls": {},
@@ -45,6 +46,14 @@ def config():
         try:
             bot.config = json.load(open('config'))
             bot._config_mtime = config_mtime
+            for name, conf in bot.config['connections'].iteritems():
+                if name in bot.conns:
+                    bot.conns[name].set_conf(conf)
+                else:
+                    if conf.get('ssl'):
+                        bot.conns[name] = SSLIRC(conf)
+                    else:
+                        bot.conns[name] = IRC(conf)
         except ValueError, e:
             print 'ERROR: malformed config!', e
 
